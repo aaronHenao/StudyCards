@@ -1,22 +1,25 @@
 # StudyCards 📚
 
-Una aplicación móvil de flashcards interactiva para estudiar de manera eficiente y organizada. Desarrollada con Flutter, permite crear, gestionar y estudiar tarjetas de aprendizaje con seguimiento del progreso.
+Una aplicación móvil de flashcards interactiva para estudiar de manera eficiente y organizada. Desarrollada con Flutter, permite crear, gestionar y sincronizar tarjetas de aprendizaje con seguimiento del progreso en tiempo real.
 
 ## ✨ Características
 
-- **Interfaz intuitiva**: Navegación sencilla entre flashcards con diseño moderno y responsive.
+- **Crear y gestionar flashcards**: Añade nuevas tarjetas de estudio con preguntas y respuestas.
 - **Seguimiento de progreso**: Marca flashcards como aprendidas y visualiza tu avance.
-- **Persistencia local**: Guarda tu progreso usando SharedPreferences.
-- **Sincronización con servidor**: Carga flashcards desde un servidor remoto (MockAPI) con fallback a datos locales.
-- **Actualización en tiempo real**: Cambia el estado de aprendizaje de cada flashcard individualmente.
+- **Sincronización bidireccional**: Los cambios se sincronizan automáticamente entre el dispositivo y Firebase.
+- **Persistencia local robusta**: Almacenamiento local con Drift (SQLite) para acceso offline.
+- **Sincronización en la nube**: Integración con Firebase Firestore para respaldar y sincronizar datos.
+- **Interfaz intuitiva**: Diseño moderno y responsive optimizado para móviles.
 
 ## 🛠️ Tecnologías Utilizadas
 
 - **Flutter**: Framework para desarrollo de aplicaciones móviles multiplataforma.
 - **Dart**: Lenguaje de programación principal.
-- **SharedPreferences**: Para almacenamiento local de datos.
-- **HTTP**: Para comunicación con APIs REST.
-- **MockAPI**: Servicio externo para datos de flashcards.
+- **Firebase Firestore**: Base de datos en la nube para sincronización de datos.
+- **Firebase Core**: Configuración y inicialización de Firebase.
+- **Drift**: ORM para SQLite con generación de código automática.
+- **GetIt**: Inyección de dependencias.
+- **Riverpod**: Gestión de estado reactivo.
 
 ## 📋 Requisitos Previos
 
@@ -26,61 +29,136 @@ Antes de ejecutar la aplicación, asegúrate de tener instalado:
 - [Dart SDK](https://dart.dev/get-dart)
 - Un editor de código como [Visual Studio Code](https://code.visualstudio.com/) con extensiones de Flutter
 - Un emulador Android/iOS o dispositivo físico conectado
+- Una cuenta de [Firebase](https://firebase.google.com/) con un proyecto configurado
 
 ## 🚀 Instalación y Configuración
 
-1. **Clona el repositorio**:
-   ```bash
-   git clone https://github.com/tu-usuario/studycards.git
-   cd studycards
-   ```
+### 1. Clona el repositorio
+```bash
+git clone https://github.com/tu-usuario/studycards.git
+cd studycards
+```
 
-2. **Instala las dependencias**:
-   ```bash
-   flutter pub get
-   ```
+### 2. Instala las dependencias
+```bash
+flutter pub get
+```
 
-3. **Verifica la configuración**:
-   ```bash
-   flutter doctor
-   ```
+### 3. Configura Firebase
 
-4. **Ejecuta la aplicación**:
-   ```bash
-   flutter run
-   ```
+Asegúrate de tener un proyecto Firebase configurado con:
+- **Firestore Database** habilitado
+- **Reglas de seguridad** permitiendo lectura/escritura (o configuradas según tus necesidades)
+- **Archivo google-services.json** configurado en `android/app/`
+
+### 4. Verifica la configuración
+```bash
+flutter doctor
+```
+
+### 5. Ejecuta la aplicación
+```bash
+flutter run
+```
 
 ## 📖 Uso
 
 ### Primera Ejecución
-- La app cargará automáticamente las flashcards desde el servidor.
-- Si no hay conexión, usará datos locales como respaldo.
+- La app inicializará Firestore automáticamente.
+- Si es la primera vez, descargará las flashcards de la nube.
+- Con conexión offline, usará los datos locales guardados.
 
-### Navegación
-- **Pantalla principal**: Lista todas las flashcards disponibles.
-- **Tarjeta individual**: Toca una flashcard para ver la respuesta y marcar como aprendida.
-- **Estado de aprendizaje**: Usa el switch para marcar/desmarcar flashcards como aprendidas.
+### Crear una Nueva Flashcard
+1. Toca el botón flotante "+" en la pantalla principal.
+2. Ingresa la pregunta en el campo de texto.
+3. Ingresa la respuesta en el segundo campo.
+4. Toca "Guardar".
+5. La flashcard se guardará localmente y se sincronizará con Firebase automáticamente.
 
-### Funcionalidades
-- **Marcar como aprendida**: Cambia el estado de una flashcard específica.
-- **Persistencia**: Tu progreso se guarda automáticamente.
-- **Sincronización**: Los cambios se envían al servidor cuando hay conexión.
+### Estudiar Flashcards
+1. Selecciona una flashcard de la lista.
+2. Presiona para ver la respuesta.
+3. Marca como aprendida usando el switch.
+4. Tu progreso se guarda y sincroniza automáticamente.
+
+## 🏗️ Arquitectura
+
+### Capas
+
+- **Presentación** (`pages/`, `widgets/`): UI y gestión de estado
+- **Dominio** (`services/`): Lógica de negocio
+- **Datos** (`data/`): Acceso a base de datos (Drift) y servicios remotos (Firebase)
+- **Modelo** (`model/`): Estructuras de datos
+
+### Sincronización
+
+La app mantiene dos fuentes de datos sincronizadas:
+
+1. **Drift (SQLite Local)**: Almacenamiento offline-first
+2. **Firebase Firestore**: Sincronización en la nube
+
+Los cambios se replican automáticamente entre ambas capas cuando hay conexión.
 
 ## 📁 Estructura del Proyecto
 
 ```
 lib/
-├── main.dart                 # Punto de entrada de la aplicación
+├── main.dart                           # Punto de entrada
+├── firebase_options.dart               # Configuración de Firebase
 ├── data/
-│   └── flashcards_data.dart  # Datos locales de flashcards
+│   ├── app_database.dart               # Definición de Drift database
+│   ├── app_database.g.dart             # Generated Drift code
+│   └── seed.dart                       # Datos iniciales
 ├── model/
-│   └── flashcard.dart        # Modelo de datos Flashcard
+│   └── flashcard.dart                  # Modelo Flashcard
 ├── pages/
-│   ├── flashcards_home_page.dart    # Pantalla principal
-│   └── flashcard_answer_page.dart   # Pantalla de respuesta
+│   ├── flashcards_home_page.dart       # Pantalla principal
+│   └── flashcard_form_dialog.dart      # Diálogo para crear flashcards
 ├── services/
-│   └── flashcards_service.dart      # Servicio de API y datos
+│   ├── flashcard_repository.dart       # Repositorio central
+│   ├── flashcard_service.dart          # Lógica de negocio
+│   ├── flashcards_remote_service.dart  # Servicio de Firebase
+│   └── app_logger.dart                 # Sistema de logging
 └── widgets/
-    └── flashcard_card.dart          # Widget de tarjeta
+    └── flashcard_card.dart             # Widget de tarjeta
 ```
+
+## 🔧 Configuración de Firestore
+
+Las reglas de seguridad permiten acceso completo en desarrollo:
+
+```firestore
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /{document=**} {
+      allow read, write: if true;
+    }
+  }
+}
+```
+
+> ⚠️ **Nota**: Para producción, reemplaza `if true` con reglas de autenticación apropiadas.
+
+## 🐛 Solución de Problemas
+
+### "Permission denied" en Firestore
+- Verifica que las reglas de seguridad están desplegadas correctamente:
+  ```bash
+  firebase deploy --only firestore:rules
+  ```
+
+### La aplicación no sincroniza cambios
+- Verifica que tienes conexión a internet
+- Comprueba en Firebase Console que los datos se están guardando
+- Revisa los logs en la app (usa el sistema AppLogger)
+
+### Base de datos corrupta
+- Limpia el proyecto: `flutter clean`
+- Reconstruye: `flutter run`
+
+
+## 👤 Autor
+
+Desarrollado como herramienta de estudio interactiva.
 
