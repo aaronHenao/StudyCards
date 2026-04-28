@@ -1,39 +1,50 @@
-class Flashcard {
-  final int id;
+class FlashcardModel {
+  final int? id;
   final String question;
   final String answer;
-  bool isLearned;
+  final bool isLearned;
+  final bool pendSync;
 
-  Flashcard({
-    required this.id,
+  FlashcardModel({
+    this.id,
     required this.question,
     required this.answer,
     this.isLearned = false,
+    this.pendSync = true,
   });
 
-  factory Flashcard.fromJson(Map<String, dynamic> json) {
-    final id = json['id'];
-    
-    //manejamos tanto strings como ints para el id
-    int parsedId;
-    if (id is int) {
-      parsedId = id;
-    } else if (id is String) {
-      parsedId = int.tryParse(id) ?? 0;
-    } else {
-      parsedId = 0;
-    }
-
-    return Flashcard(
-      id: parsedId,
-      question: json['question'] is String ? json['question'] as String : 'Pregunta no disponible',
-      answer: json['answer'] is String ? json['answer'] as String : 'Respuesta no disponible',
-      isLearned: json['isLearned'] is bool ? json['isLearned'] as bool : false,
+  FlashcardModel copyWith({
+    int? id,
+    String? question,
+    String? answer,
+    bool? isLearned,
+    bool? pendSync
+  }) {
+    return FlashcardModel(
+      id: id ?? this.id,
+      question: question ?? this.question,
+      answer: answer ?? this.answer,
+      isLearned: isLearned ?? this.isLearned,
+      pendSync: pendSync ?? this.pendSync
     );
   }
 
-  Map<String, dynamic> toJson() {
-    return {'id': id, 'question': question, 'answer': answer, 'isLearned': isLearned};
+  Map<String, dynamic> toFirestore(){
+    return {
+      'question': question,
+      'answer': answer,
+      'isLearned': isLearned
+    };
   }
-  
+
+  factory FlashcardModel.fromFirestore(Map<String, dynamic> map, {required int id}) {
+
+    return FlashcardModel(
+      id: id,
+      question: map['question'] as String ?? '',
+      answer: map['answer'] as String ?? '',
+      isLearned: map['isLearned'] as bool ?? false,
+      pendSync: false,
+    );
+  }
 }

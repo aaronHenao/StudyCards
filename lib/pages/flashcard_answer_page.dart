@@ -1,85 +1,59 @@
 import 'package:flutter/material.dart';
-import 'package:hugeicons/hugeicons.dart';
 import 'package:studycards/model/flashcard.dart';
-import 'package:studycards/services/flashcards_service.dart';
+import 'package:studycards/services/flashcard_repository.dart';
 
-class FlashcardAnswerPage extends StatefulWidget {
-  final Flashcard flashcard;
-  final bool isLearnedInitial;
-  final ValueChanged<bool> onLearnedChange;
+
+class FlashcardAnswerPage extends StatelessWidget {
+  final FlashcardModel flashcard;
+  final FlashcardRepository repository;
 
   const FlashcardAnswerPage({
     super.key,
     required this.flashcard,
-    required this.isLearnedInitial,
-    required this.onLearnedChange,
+    required this.repository,
   });
 
   @override
-  State<FlashcardAnswerPage> createState() => _FlashcardAnswerPage();
-}
-
-class _FlashcardAnswerPage extends State<FlashcardAnswerPage> {
-  late bool _isLearned;
-  late final FlashcardsService _service;
-
-  @override
-  void initState() {
-    super.initState();
-    _isLearned = widget.isLearnedInitial;
-    _service = const FlashcardsService(
-      baseUrl: 'https://69d99d5726585bd92dd31e13.mockapi.io/api/v1',
-      useFallbackLocal: true,
-    );
-  }
-
-  void _toggleLearned() async {
-    final newState = !_isLearned;
-
-    setState(() {
-      _isLearned = newState;
-    });
-
-    widget.onLearnedChange(_isLearned);
-
-    try{
-      await _service.flashcardLearned(widget.flashcard.id, newState);
-    } catch(e){
-      rethrow;
-    }
-  }
-
-  @override
   Widget build(BuildContext context) {
-    final flashcard = widget.flashcard;
-
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Respuesta'),
-      ),
-      body: SingleChildScrollView(
+      appBar: AppBar(title: const Text('Estudiando')),
+      body: Padding(
+        padding: const EdgeInsets.all(24.0),
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Padding(
-              padding: EdgeInsets.fromLTRB(16, 16, 16, 8),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Text(
-                      flashcard.answer,
-                      style: Theme.of(context).textTheme.headlineSmall,
-                    ),
-                  ),
-                  IconButton(
-                    onPressed: _toggleLearned,
-                    icon: HugeIcon(
-                      icon: _isLearned ? HugeIcons.strokeRoundedToggleOn : HugeIcons.strokeRoundedToggleOff,
-                      color: _isLearned ? Colors.green : Colors.grey,
-                      size: 24,
-                    ),
-                  ),
-                ],
+            const Text('PREGUNTA:', style: TextStyle(color: Colors.grey, letterSpacing: 1.2)),
+            const SizedBox(height: 8),
+            Text(
+              flashcard.question,
+              textAlign: TextAlign.center,
+              style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
+            ),
+            const Divider(height: 60),
+            const Text('RESPUESTA:', style: TextStyle(color: Colors.grey, letterSpacing: 1.2)),
+            const SizedBox(height: 8),
+            Text(
+              flashcard.answer,
+              textAlign: TextAlign.center,
+              style: const TextStyle(fontSize: 20, fontStyle: FontStyle.italic),
+            ),
+            const Spacer(),
+            SizedBox(
+              width: double.infinity,
+              height: 60,
+              child: FilledButton.icon(
+                style: FilledButton.styleFrom(
+                  backgroundColor: flashcard.isLearned ? Colors.orange : Colors.green,
+                ),
+                onPressed: () async {
+                  await repository.toggleLearned(flashcard);
+                  if (context.mounted) Navigator.pop(context);
+                },
+                icon: Icon(flashcard.isLearned ? Icons.undo : Icons.check),
+                label: Text(
+                  flashcard.isLearned ? 'Marcar como pendiente' : '¡La aprendí!',
+                  style: const TextStyle(fontSize: 18),
+                ),
               ),
             ),
           ],
