@@ -18,8 +18,7 @@ Una aplicación móvil de flashcards interactiva para estudiar de manera eficien
 - **Firebase Firestore**: Base de datos en la nube para sincronización de datos.
 - **Firebase Core**: Configuración y inicialización de Firebase.
 - **Drift**: ORM para SQLite con generación de código automática.
-- **GetIt**: Inyección de dependencias.
-- **Riverpod**: Gestión de estado reactivo.
+
 
 ## 📋 Requisitos Previos
 
@@ -35,7 +34,7 @@ Antes de ejecutar la aplicación, asegúrate de tener instalado:
 
 ### 1. Clona el repositorio
 ```bash
-git clone https://github.com/tu-usuario/studycards.git
+git clone https://github.com/aaronHenao/studycards.git
 cd studycards
 ```
 
