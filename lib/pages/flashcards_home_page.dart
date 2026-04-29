@@ -3,7 +3,7 @@ import 'package:studycards/model/flashcard.dart';
 import 'package:studycards/services/flashcard_repository.dart';
 import '../widgets/flashcard_tile.dart';
 import '../widgets/flashcard_form_dialog.dart';
-import 'flashcard_answer_page.dart'; // Crearemos esta página a continuación
+import 'flashcard_answer_page.dart';
 
 class FlashcardsHomePage extends StatefulWidget {
   final FlashcardRepository repository;
@@ -63,7 +63,6 @@ class _FlashcardsHomePageState extends State<FlashcardsHomePage> {
               return FlashcardTile(
                 flashcard: card,
                 onTap: () {
-                  // Navegamos a la página donde se ve la respuesta
                   Navigator.push(
                     context,
                     MaterialPageRoute(
