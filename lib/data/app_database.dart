@@ -59,7 +59,7 @@ class AppDatabase extends _$AppDatabase {
         question: card.question,
         answer: card.answer,
         isLearned: Value(card.isLearned),
-        pendSync: const Value(true), // Siempre true al crear local
+        pendSync: const Value(true),
       ),
     );
     return card.copyWith(id: insertedId);
@@ -91,7 +91,6 @@ class AppDatabase extends _$AppDatabase {
     );
   }
 
-  // Insertar o actualizar desde Firebase 
   Future<void> upsertFromRemote(FlashcardModel card) async {
     if (card.id == null) return;
 
@@ -101,7 +100,7 @@ class AppDatabase extends _$AppDatabase {
         question: Value(card.question),
         answer: Value(card.answer),
         isLearned: Value(card.isLearned),
-        pendSync: const Value(false), // Viene de la nube, ya está sincronizado
+        pendSync: const Value(false),
       ),
     );
   }
